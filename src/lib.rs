@@ -11,8 +11,10 @@ extern crate diesel;
 use diesel::{expression::NonAggregate, sql_types::Bool, Expression, SelectableExpression};
 
 mod macros;
+pub mod methods;
 
 pub mod prelude {
+    pub use crate::methods::*;
     pub use crate::soft_delete;
 }
 

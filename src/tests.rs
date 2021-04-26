@@ -50,3 +50,19 @@ fn test_find_ok() {
 
     assert_eq!(joe, User { id: joe_id, name: "Joe".to_owned(), deleted: false });
 }
+
+#[test]
+fn test_soft_find_ok() {
+    let conn = conn();
+
+    diesel::insert_into(user::table).values(NewUser { name: "Joe" }).execute(&conn).unwrap();
+    let joe_id: i32 = user::table.select(user::id).first(&conn).unwrap();
+
+    let joe: Option<User> = user::table.soft_find(joe_id).first(&conn).optional().unwrap();
+    assert_eq!(joe, Some(User { id: joe_id, name: "Joe".to_owned(), deleted: false }));
+
+    diesel::update(user::table).set(user::deleted.eq(true)).execute(&conn).unwrap();
+
+    let joe: Option<User> = user::table.soft_find(joe_id).first(&conn).optional().unwrap();
+    assert_eq!(joe, None);
+}
