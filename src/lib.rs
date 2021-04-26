@@ -12,10 +12,12 @@ use diesel::{expression::NonAggregate, sql_types::Bool, Expression, SelectableEx
 
 mod macros;
 pub mod methods;
+pub mod query_dsl;
+mod query_source;
 
 pub mod prelude {
-    pub use crate::methods::*;
     pub use crate::soft_delete;
+    pub use crate::{methods::*, query_dsl::*};
 }
 
 #[cfg(test)]
