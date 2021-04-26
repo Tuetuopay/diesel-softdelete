@@ -8,3 +8,6 @@ edition = "2018"
 
 [dependencies]
 diesel = "1.4"
+
+[dev-dependencies]
+diesel = { version = "1.4", features = ["sqlite"] }
