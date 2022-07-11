@@ -3,8 +3,12 @@ name = "diesel-softdelete"
 version = "0.1.0"
 authors = ["Tuetuopay <tuetuopay@me.com>"]
 edition = "2021"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+license = "MIT OR Apache-2.0"
+description = "Soft-delete support for the Diesel ORM"
+repository = "https://github.com/Tuetuopay/diesel-softdelete"
+categories = ["database"]
+keywords = ["orm", "database", "sql", "softdelete"]
+readme = "README.md"
 
 [dependencies]
 diesel = { version = "1.4", default-features = false }

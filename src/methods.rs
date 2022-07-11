@@ -1,3 +1,5 @@
+//! Expression methods implemented on the table.
+
 use diesel::{
     dsl::{not, Filter},
     helper_types::not as Not,

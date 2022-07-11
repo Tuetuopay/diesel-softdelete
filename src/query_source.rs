@@ -1,6 +1,5 @@
 use super::SoftDelete;
 use diesel::{
-    associations::HasTable,
     dsl::{not, And},
     helper_types::not as Not,
     query_builder::AsQuery,
