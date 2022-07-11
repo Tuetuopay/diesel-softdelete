@@ -1,7 +1,7 @@
 //! Expression methods implemented on the table.
 
 use diesel::{
-    dsl::{not, Filter},
+    dsl::{not, Filter, Find},
     helper_types::not as Not,
     query_dsl::methods::{FilterDsl, FindDsl},
 };
@@ -14,16 +14,20 @@ pub trait SoftDeleteDsl: SoftDelete {
     fn soft_deleted(self) -> Self::Output;
 }
 
+pub type SoftDeleted<Source> = Filter<Source, Not<<Source as SoftDelete>::Deleted>>;
+
 impl<T> SoftDeleteDsl for T
 where
-    T: SoftDelete + FilterDsl<Not<Self::Deleted>>,
+    Self: SoftDelete + FilterDsl<Not<Self::Deleted>>,
 {
-    type Output = Filter<Self, Not<Self::Deleted>>;
+    type Output = SoftDeleted<Self>;
     fn soft_deleted(self) -> Self::Output {
         let deleted = self.deleted_col();
         self.filter(not(deleted))
     }
 }
+
+pub type SoftFind<Source, PK> = Filter<Find<Source, PK>, Not<<Source as SoftDelete>::Deleted>>;
 
 /// The `soft_find` method
 pub trait SoftFindDsl<PK>: SoftDelete {
@@ -34,16 +38,19 @@ pub trait SoftFindDsl<PK>: SoftDelete {
 
 impl<T, PK> SoftFindDsl<PK> for T
 where
-    T: SoftDelete + FindDsl<PK>,
-    <T as FindDsl<PK>>::Output: FilterDsl<Not<Self::Deleted>>,
+    Self: SoftDelete + FindDsl<PK>,
+    Find<Self, PK>: FilterDsl<Not<Self::Deleted>>,
 {
-    type Output = Filter<<T as FindDsl<PK>>::Output, Not<T::Deleted>>;
+    type Output = SoftFind<Self, PK>;
 
     fn soft_find(self, id: PK) -> Self::Output {
         let deleted = self.deleted_col();
         self.find(id).filter(not(deleted))
     }
 }
+
+pub type SoftFilter<Source, Predicate> =
+    Filter<Filter<Source, Predicate>, Not<<Source as SoftDelete>::Deleted>>;
 
 /// The `soft_filter` method.
 ///
@@ -61,10 +68,10 @@ pub trait SoftFilterDsl<Predicate>: SoftDelete {
 
 impl<T, Predicate> SoftFilterDsl<Predicate> for T
 where
-    T: SoftDelete + FilterDsl<Predicate>,
-    <T as FilterDsl<Predicate>>::Output: FilterDsl<Not<Self::Deleted>>,
+    Self: SoftDelete + FilterDsl<Predicate>,
+    Filter<Self, Predicate>: FilterDsl<Not<Self::Deleted>>,
 {
-    type Output = Filter<<T as FilterDsl<Predicate>>::Output, Not<T::Deleted>>;
+    type Output = SoftFilter<Self, Predicate>;
 
     fn soft_filter(self, predicate: Predicate) -> Self::Output {
         let deleted = self.deleted_col();
