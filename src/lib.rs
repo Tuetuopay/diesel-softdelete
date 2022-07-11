@@ -30,3 +30,15 @@ pub trait SoftDelete: Sized {
 
     fn deleted_col(&self) -> Self::Deleted;
 }
+
+impl<F, S, D, W, O, L, Of, G> SoftDelete for diesel::query_builder::SelectStatement<F, S, D, W, O, L, Of, G>
+where
+    F: SoftDelete + diesel::associations::HasTable<Table = F>,
+    F::Deleted: SelectableExpression<Self>,
+{
+    type Deleted = F::Deleted;
+
+    fn deleted_col(&self) -> Self::Deleted {
+        F::deleted_col(&F::table())
+    }
+}

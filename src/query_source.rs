@@ -18,14 +18,15 @@ pub trait SoftJoinTo<T>: JoinTo<T> {
 impl<Lhs, Rhs> SoftJoinTo<Rhs> for Lhs
 where
     Lhs: JoinTo<Rhs>,
-    Rhs: SoftDelete + HasTable<Table = Rhs>,
+    Rhs: SoftDelete,
     <Lhs as JoinTo<Rhs>>::OnClause: Expression + BoolExpressionMethods,
 {
     type SoftOnClause = And<Lhs::OnClause, Not<Rhs::Deleted>>;
 
     fn soft_join_target(rhs: Rhs) -> (Self::FromClause, Self::SoftOnClause) {
-        let (rhs, on_clause) = Self::join_target(rhs);
-        (rhs, on_clause.and(not(Rhs::deleted_col(&Rhs::table()))))
+        let deleted = Rhs::deleted_col(&rhs);
+        let (from_clause, on_clause) = Self::join_target(rhs);
+        (from_clause, on_clause.and(not(deleted)))
     }
 }
 
