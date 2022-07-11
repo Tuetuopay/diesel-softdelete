@@ -145,6 +145,43 @@ fn test_soft_find_ok() {
 }
 
 #[test]
+fn test_soft_deleted_ok() {
+    let conn = conn();
+
+    let users = vec![NewUser { name: "Joe" }, NewUser { name: "Jack" }];
+    diesel::insert_into(user::table).values(users).execute(&conn).unwrap();
+
+    let users: Vec<String> = user::table.soft_deleted().select(user::name).load(&conn).unwrap();
+    assert_eq!(users, vec!["Joe".to_owned(), "Jack".to_owned()]);
+
+    let joe_query = user::table.filter(user::name.eq("Joe"));
+    diesel::update(joe_query).set(user::deleted.eq(true)).execute(&conn).unwrap();
+
+    let users: Vec<String> = user::table.soft_deleted().select(user::name).load(&conn).unwrap();
+    assert_eq!(users, vec!["Jack".to_owned()]);
+}
+
+#[test]
+fn test_soft_filter_ok() {
+    let conn = conn();
+
+    let users =
+        vec![NewUser { name: "Joe" }, NewUser { name: "Jack" }, NewUser { name: "William" }];
+    diesel::insert_into(user::table).values(users).execute(&conn).unwrap();
+
+    let users: Vec<String> =
+        user::table.soft_filter(user::name.like("J%")).select(user::name).load(&conn).unwrap();
+    assert_eq!(users, vec!["Joe".to_owned(), "Jack".to_owned()]);
+
+    let joe_query = user::table.filter(user::name.eq("Joe"));
+    diesel::update(joe_query).set(user::deleted.eq(true)).execute(&conn).unwrap();
+
+    let users: Vec<String> =
+        user::table.soft_filter(user::name.like("J%")).select(user::name).load(&conn).unwrap();
+    assert_eq!(users, vec!["Jack".to_owned()]);
+}
+
+#[test]
 fn test_join_ok() {
     let conn = conn();
 

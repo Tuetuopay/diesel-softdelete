@@ -8,8 +8,13 @@
 //!
 //! The main additions of this library are to the query builder, with new operations:
 //!
-//! - [`soft_find`](methods::SoftFindDsl::soft_find) which is analogous to
-//!   [`find`](diesel::query_dsl::QueryDsl::find), but with the soft-delete filter applied.
+//! - [`soft_deleted`](methods::SoftDeleteDsl::soft_deleted) which is analogous to a naked table,
+//!   but with the soft-delete filter applied
+//! - [`soft_find`](methods::SoftFindDsl::soft_find) /
+//!   [`soft_filter`](methods::SoftFilterDsl::soft_filter)
+//!   which are analogous to
+//!   [`find`](diesel::query_dsl::QueryDsl::find) /
+//!   [`filter`](diesel::query_dsl::QueryDsl::filter), but with the soft-delete filter applied.
 //! - [`soft_inner_join`](query_dsl::SoftJoinDsl::soft_inner_join) /
 //!   [`soft_left_join`](query_dsl::SoftJoinDsl::soft_left_join) which are analogous to
 //!   [`inner_join`](diesel::query_dsl::QueryDsl::inner_join) /
